@@ -53,10 +53,10 @@ class Sudoku:
 		grid = [
 		[0, 0, 0, 0, 0, 0, 0, 0, 0],
 		[0, 0, 0, 0, 0, 0, 0, 0, 0],
-		[1, 0, 0, 0, 0, 0, 0, 0, 0],
-		[2, 0, 0, 0, 0, 0, 0, 0, 0],
-		[3, 0, 0, 0, 0, 0, 0, 0, 0],
-		[4, 0, 0, 0, 0, 0, 0, 0, 0],
+		[1, 6, 0, 0, 0, 0, 0, 0, 0],
+		[2, 7, 0, 0, 0, 0, 0, 0, 0],
+		[3, 8, 0, 0, 0, 0, 0, 0, 0],
+		[4, 9, 0, 0, 0, 0, 0, 0, 0],
 		[5, 0, 0, 0, 0, 0, 0, 0, 0],
 		[0, 0, 0, 0, 0, 0, 0, 0, 0],
 		[0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -156,11 +156,6 @@ class Sudoku:
 		self.screen.blit(text1, (20, 520))       
 		self.screen.blit(text2, (20, 540))
 
-	# Display options when solved
-	def result(self):
-		text1 = self.font1.render("FINISHED PRESS R or D", 1, (0, 0, 0))
-		self.screen.blit(text1, (20, 570)) 
-
 	# Tests to see if the current attempt successfully filled the grid.
 	def checkGrid(self, grid):
 		for row in range(0,9):
@@ -189,12 +184,6 @@ class Sudoku:
 				if gridOne[row][col] != gridTwo[row][col]:
 					return False
 		return True
-
-	# Reinitializes the grid after a failed attempt to populate it with a good solution.
-	def resetGrid(self):
-		for row in range(0,9):
-			for col in range(0,9):
-				self.grid[row][col] = 0
 
 	# Attempts to fill the grid with a random solution
 	def solveGrid(self, grid, firstSolve):
@@ -269,48 +258,28 @@ class Sudoku:
 		return grid.copy()
 
 	# Remove values from the grid and make sure that it is still solvable via one solution
-	def removeValues(self, grid, attempts):
-		#A higher number of attempts will end up removing more numbers from the grid
-		#Potentially resulting in more difficiult grids to solve!
+	def removeValues(self, grid, level):
+		#Base the number of values removed on the level selected
+		counter = int(level * 7)
 
-		counter = 1
-		while attempts > 0:
+		while counter > 0:
 			#Select a random cell that is not already empty
 			row = randint(0,8)
 			col = randint(0,8)
+
 			while grid[row][col] == 0:
 				row = randint(0,8)
 				col = randint(0,8)
-			#Remember its cell value in case we need to put it back  
-			backup = grid[row][col]
+
 			grid[row][col] = 0
+			counter -= 1
 
-			#Take a full copy of the grid
-			copyGridOne = self.copyGrid(grid)
-			copyGridTwo = self.copyGrid(grid)
-
-			gridOne = self.solveGrid(copyGridOne, True)
-			gridTwo = self.solveGrid(copyGridTwo, True)
-
-			#If two different solutions were found, then restore the original grid
-			if (self.compareGrid(gridOne, gridTwo) == False):
-				grid[row][col] = backup
-				#We could stop here, but we can also have another attempt with a different cell just to try to remove more numbers
-				attempts -= 1
 		return grid.copy()
-
-	# Check to see if the grid has been fully filled, if it has this is a solution
-	def checkWin(self, grid):
-		for row in range(0,9):
-			for col in range(0,9):
-				if grid[row][col] == 0:
-					return False
-		return True
 
 	# Main control function for script, looks for key and mouse events and triggers functional code
 	def eventLoop(self, grid):
 		run = True
-		flag1 = 0
+		flag1 = 0 #Update flag name
 		pause = False
 
 		#make a copy of the grid for restoring start point if need be
@@ -389,7 +358,7 @@ class Sudoku:
 				self.draw_box()
 
 			# Check to see if the puzzle is complete
-			if self.checkWin(grid):
+			if self.checkGrid(grid):
 				promptOne = "You've won the game!"
 				promptTwo = "Nice work, press Space to exit."
 				self.instruction(promptOne, promptTwo)
