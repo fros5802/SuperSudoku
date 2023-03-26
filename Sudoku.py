@@ -79,7 +79,7 @@ class Sudoku:
 
 			# Draw the grid and place red box if the directional or mouse click happened
 			self.draw(grid)
-			promptOne = "Select level of difficulty by clicking one to five."
+			promptOne = "Select level of difficulty by clicking one to nine."
 			promptTwo = ""
 			self.instruction(promptOne, promptTwo)
 
